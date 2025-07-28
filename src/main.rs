@@ -63,17 +63,19 @@ fn main() -> anyhow::Result<()> {
 
             if !no_verify {
                 let checked = run_checklist_interactive(&config.checklist)?;
-                if Confirm::with_theme(&ColorfulTheme::default())
-                    .with_prompt("Warning: Not all DoD items were checked. Proceed by adding a 'TODO' list to the commit message? (Y/n)")
-                    .interact()?
-                {
-                    let todo_footer = build_todo_footer(&config.checklist, &checked);
-                    commit_message.push_str(&todo_footer);
-                } else {
-                    println!("Commit aborted.");
-                    return Ok(());
+                if checked.len() != config.checklist.len() {
+                    if Confirm::with_theme(&ColorfulTheme::default())
+                        .with_prompt("Warning: Not all DoD items were checked. Proceed by adding a 'TODO' list to the commit message? (Y/n)")
+                        .interact()?
+                    {
+                        let todo_footer = build_todo_footer(&config.checklist, &checked);
+                        commit_message.push_str(&todo_footer);
+                    } else {
+                        println!("Commit aborted.");
+                        return Ok(());
+                    }
                 }
-                if config.issue_reference_required.unwrap_or(false) && issue {
+                if config.issue_reference_required.unwrap_or(false) && !issue {
                     println!("{}", "Issue reference is required for commits.".red());
                     return Err(anyhow::anyhow!("Issue reference required"));
                 }
