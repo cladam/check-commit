@@ -33,6 +33,12 @@ checklist:
   - "Relevant documentation (code comments, READMEs, etc.) is updated."
 ```
 
+If you try to proceed without checking all items, the tool will offer to add a TODO list to your commit message footer, 
+ensuring the incomplete work is tracked directly in your Git history.
+
+All of this can be bypassed by the flag `--no-verify`.
+It answers the question, "For this one specific commit, do I have a good reason to bypass our default rules?"
+
 ## Getting Started (Development)
 This project is currently in the planning and early development phase.
 
@@ -40,8 +46,8 @@ The initial proof-of-concept will be built in Rust.
 
 Roadmap:
 
-* Parse command-line arguments for `git commit`.
-* Read and parse the `.dod.yml` configuration file.
-* Implement the interactive checklist using a TUI library.
-* Execute `git commit` upon successful confirmation.
+* ~~Parse command-line arguments for `git commit`.~~
+* ~~Read and parse the `.dod.yml` configuration file.~~
+* ~~Implement the interactive checklist using a TUI library.~~
+* ~~Execute `git commit` upon successful confirmation.~~
 * Integrate this logic into the `tbdflow commit` command.
