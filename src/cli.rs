@@ -36,8 +36,10 @@ pub(crate) enum Commands {
         #[arg(short, long)]
         message: String,
         /// Optional flag to skip verification of the checklist.
-        /// This is useful for quick commits without checklist confirmation.
         #[arg(long, default_value_t = false)]
         no_verify: bool,
+        /// Optional flag for an issue reference.
+        #[arg(long, default_value_t = false)]
+        issue: bool,
     },
 }
