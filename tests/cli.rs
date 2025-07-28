@@ -59,7 +59,8 @@ checklist:
     cmd.arg("commit")
         .arg("--type").arg("feat")
         .arg("--scope").arg("ui")
-        .arg("--message").arg("Add new button");
+        .arg("--message").arg("Add new button")
+        .arg("--no-verify");
     cmd.assert()
         .success()
         .stdout(contains("Successfully committed and pushed changes."));
