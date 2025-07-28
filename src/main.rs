@@ -5,6 +5,7 @@ use std::fs;
 use anyhow::{Result, Context};
 use clap::Parser;
 use colored::Colorize;
+use dialoguer::{MultiSelect, theme::ColorfulTheme};
 
 #[derive(Debug, Deserialize)]
 struct DodConfig {
@@ -20,12 +21,20 @@ fn read_dod_config() -> Result<DodConfig> {
     Ok(config)
 }
 
+fn run_checklist_interactive(checklist: &[String]) -> Result<bool> {
+    let selections = MultiSelect::with_theme(&ColorfulTheme::default())
+        .with_prompt("Please confirm each item before committing:")
+        .items(&checklist)
+        .interact()?;
+    Ok(selections.len() == checklist.len())
+}
+
 fn main() -> anyhow::Result<()> {
     let cli = cli::Cli::parse();
     let config = read_dod_config()?;
     if !config.checklist.is_empty() {
         println!("Checklist items:");
-        for item in config.checklist {
+        for item in config.checklist.clone() {
             println!("- {}", item);
         }
     } else {
@@ -43,6 +52,10 @@ fn main() -> anyhow::Result<()> {
             if config.issue_reference_required.unwrap_or(false) {
                 println!("{}", "Issue reference is required for commits.".red());
                 return Err(anyhow::anyhow!("Issue reference required"));
+            }
+            if !run_checklist_interactive(&config.checklist)? {
+                println!("Not all checklist items confirmed. Commit aborted.");
+                return Ok(());
             }
             let scope_part = scope.map_or("".to_string(), |s| format!("({})", s));
             let header = format!("{}{}: {}", r#type, scope_part, message);
