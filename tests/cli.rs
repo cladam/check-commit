@@ -21,11 +21,20 @@ fn test_commit_command() {
     std::env::set_current_dir(&repo_path).unwrap();
 
     // Create a file to commit
-    std::fs::write(repo_path.join("BUTTON.md"), "This is a new button ■").unwrap();
+    std::fs::write(repo_path.join(".dod.yml"), r#"
+issue_reference_required: false
+checklist:
+  - "Code is clean, readable, and adheres to team coding standards."
+  - "All relevant automated tests (unit, integration) pass successfully."
+  - "New features or bug fixes are covered by appropriate new tests."
+  - "Security implications of this change have been considered."
+  - "Relevant documentation (code comments, READMEs, etc.) is updated."
+"#).unwrap();
+
     // Stage the file
     Command::new("git")
         .arg("add")
-        .arg("BUTTON.md")
+        .arg(".dod.yml")
         .current_dir(&repo_path)
         .output()
         .unwrap();
