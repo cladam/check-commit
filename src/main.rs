@@ -32,12 +32,7 @@ fn run_checklist_interactive(checklist: &[String]) -> Result<bool> {
 fn main() -> anyhow::Result<()> {
     let cli = cli::Cli::parse();
     let config = read_dod_config()?;
-    if !config.checklist.is_empty() {
-        println!("Checklist items:");
-        for item in config.checklist.clone() {
-            println!("- {}", item);
-        }
-    } else {
+    if config.checklist.is_empty() {
         println!("{}", "No checklist items defined.".yellow());
     }
 
