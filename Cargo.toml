@@ -15,3 +15,9 @@ clap = { version = "4.5.41", features = ["derive"] }
 thiserror = "2.0.12"
 anyhow = "1.0.98"
 colored = "3.0.0"
+
+[dev-dependencies]
+serial_test = "3.2.0"
+tempfile = "3.20.0"
+assert_cmd = "2.0.17"
+predicates = "3.1.3"
