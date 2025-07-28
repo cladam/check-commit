@@ -1,16 +1,12 @@
 use std::process::{Command, Stdio};
 use thiserror::Error;
 use anyhow::{Context, Result};
-use colored::Colorize;
-use crate::git;
 
 // Using `thiserror` to create a structured error type.
 #[derive(Error, Debug)]
 pub enum GitError {
     #[error("Git command failed: {0}")]
     Git(String),
-    #[error("Working directory is not clean: {0}")]
-    DirectoryNotClean(String),
 }
 
 /// Runs a Git command with the specified subcommand and arguments.
@@ -31,16 +27,9 @@ fn run_git_command(command: &str, args: &[&str]) -> Result<String> {
     }
 }
 
-/// Checks if the git working directory is clean.
-pub fn is_working_directory_clean() -> Result<()> {
-    let output = run_git_command("status", &["--porcelain"])?;
-    if output.is_empty() {
-        Ok(())
-    } else {
-        Err(GitError::DirectoryNotClean(
-            "You have unstaged changes. Please commit or stash them first.".to_string()
-        ).into())
-    }
+/// Show the current status of the repository.
+pub fn status() -> Result<String> {
+    run_git_command("status", &["--short"])
 }
 
 /// Pull the latest changes with rebase.

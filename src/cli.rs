@@ -1,20 +1,16 @@
-use anyhow::{Context, Result};
-use clap::{Command, CommandFactory, Parser, Subcommand};
-use colored::*;
-use std::io::Write;
-use thiserror::Error;
+use clap::Parser;
 
 /// A CLI to streamline your Git workflow for Trunk-Based Development
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
-struct Cli {
+pub struct Cli {
     #[command(subcommand)]
-    command: Commands,
+    pub command: Commands,
 }
 
 #[derive(clap::Subcommand, Debug)]
-enum Commands {
+pub(crate) enum Commands {
     /// Show the current Git status
     Status,
     /// Commits changes to the current branch or 'main' if no branch is checked out.
