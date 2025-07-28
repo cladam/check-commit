@@ -30,6 +30,9 @@ fn run_checklist_interactive(checklist: &[String]) -> anyhow::Result<Vec<usize>>
 }
 
 fn build_todo_footer(checklist: &[String], checked_indices: &[usize]) -> String {
+    if checked_indices.len() == checklist.len() {
+        return String::new();
+    }
     let mut footer = String::from("\nTODO:\n");
     for (i, item) in checklist.iter().enumerate() {
         if !checked_indices.contains(&i) {
@@ -70,7 +73,7 @@ fn main() -> anyhow::Result<()> {
                     println!("Commit aborted.");
                     return Ok(());
                 }
-                if config.issue_reference_required.unwrap_or(false) && !issue {
+                if config.issue_reference_required.unwrap_or(false) && issue {
                     println!("{}", "Issue reference is required for commits.".red());
                     return Err(anyhow::anyhow!("Issue reference required"));
                 }
