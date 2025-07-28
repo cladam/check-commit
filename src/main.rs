@@ -42,15 +42,17 @@ fn main() -> anyhow::Result<()> {
             let status = git::status()?;
             println!("{}", format!("Git Status:\n{}", status).green());
         }
-        cli::Commands::Commit { r#type, scope, message} => {
+        cli::Commands::Commit { r#type, scope, message, no_verify} => {
             println!("--- Committing changes ---");
-            if config.issue_reference_required.unwrap_or(false) {
-                println!("{}", "Issue reference is required for commits.".red());
-                return Err(anyhow::anyhow!("Issue reference required"));
-            }
-            if !run_checklist_interactive(&config.checklist)? {
-                println!("Not all checklist items confirmed. Commit aborted.");
-                return Ok(());
+            if !no_verify {
+                if config.issue_reference_required.unwrap_or(false) {
+                    println!("{}", "Issue reference is required for commits.".red());
+                    return Err(anyhow::anyhow!("Issue reference required"));
+                }
+                if !run_checklist_interactive(&config.checklist)? {
+                    println!("Not all checklist items confirmed. Commit aborted.");
+                    return Ok(());
+                }
             }
             let scope_part = scope.map_or("".to_string(), |s| format!("({})", s));
             let header = format!("{}{}: {}", r#type, scope_part, message);

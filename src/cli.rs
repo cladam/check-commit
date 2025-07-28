@@ -35,5 +35,9 @@ pub(crate) enum Commands {
         /// The descriptive commit message.
         #[arg(short, long)]
         message: String,
+        /// Optional flag to skip verification of the checklist.
+        /// This is useful for quick commits without checklist confirmation.
+        #[arg(long, default_value_t = false)]
+        no_verify: bool,
     },
 }
