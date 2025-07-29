@@ -6,7 +6,7 @@ use colored::Colorize;
 // Using `thiserror` to create a structured error type.
 #[derive(Error, Debug)]
 pub enum GitError {
-    #[error("Git command failed: {0}")]
+    #[error("Git command failed terribly: {0}")]
     Git(String),
 }
 
