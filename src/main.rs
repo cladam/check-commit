@@ -13,6 +13,7 @@ struct DodConfig {
     checklist: Vec<String>,
 }
 
+/// Reads the DoD configuration from `.dod.yml` file in the current directory (root of the git repository).
 fn read_dod_config() -> Result<DodConfig> {
     let content = fs::read_to_string(".dod.yml")
         .context("Failed to read .dod.yml")?;
@@ -21,6 +22,7 @@ fn read_dod_config() -> Result<DodConfig> {
     Ok(config)
 }
 
+/// Runs the checklist interactively, allowing the user to confirm each item before committing.
 fn run_checklist_interactive(checklist: &[String]) -> anyhow::Result<Vec<usize>> {
     let selections = MultiSelect::with_theme(&ColorfulTheme::default())
         .with_prompt("Please confirm each item before committing:")
@@ -29,6 +31,7 @@ fn run_checklist_interactive(checklist: &[String]) -> anyhow::Result<Vec<usize>>
     Ok(selections)
 }
 
+/// Builds the TODO footer for the commit message based on unchecked items in the checklist.
 fn build_todo_footer(checklist: &[String], checked_indices: &[usize]) -> String {
     //let checked_indices: Vec<usize> = checked_indices.iter().cloned().collect();
     let unchecked_items: Vec<String> = checklist
@@ -45,6 +48,40 @@ fn build_todo_footer(checklist: &[String], checked_indices: &[usize]) -> String 
     }
 }
 
+/// Handles the interactive commit process, including checklist confirmation and issue reference handling.
+fn handle_interactive_commit(
+    config: &DodConfig,
+    base_message: &str,
+    issue: &Option<String>,
+) -> Result<Option<String>> {
+    let mut commit_message = base_message.to_string();
+    if let Some(issue_ref) = issue {
+        commit_message = format!("{} {}", issue_ref, commit_message);
+    }
+
+    let checked = run_checklist_interactive(&config.checklist)?;
+    if checked.len() != config.checklist.len() {
+        if Confirm::with_theme(&ColorfulTheme::default())
+            .with_prompt("Warning: Not all DoD items were checked. Proceed by adding a 'TODO' list to the commit message?")
+            .interact()?
+        {
+            let todo_footer = build_todo_footer(&config.checklist, &checked);
+            commit_message.push_str(&todo_footer);
+        } else {
+            println!("Commit aborted.");
+            return Ok(None);
+        }
+    }
+
+    if config.issue_reference_required.unwrap_or(false) && issue.is_none() {
+        println!("{}", "Issue reference is required for commits.".red());
+        return Err(anyhow::anyhow!("Aborted: Issue reference required."));
+    }
+
+    Ok(Some(commit_message))
+}
+
+/// Main function that parses command line arguments and executes the appropriate git operations.
 fn main() -> anyhow::Result<()> {
     let cli = cli::Cli::parse();
     let config = read_dod_config()?;
@@ -62,38 +99,25 @@ fn main() -> anyhow::Result<()> {
             println!("--- Committing changes ---");
             let scope_part = scope.map_or("".to_string(), |s| format!("({})", s));
             let header = format!("{}{}: {}", r#type, scope_part, message);
-            let mut commit_message = format!("{}", header);
-            if let Some(issue_ref) = &issue {
-                commit_message = format!("{} {}", issue_ref, commit_message);
-            }
 
-            if !no_verify {
-                let checked = run_checklist_interactive(&config.checklist)?;
-                if checked.len() != config.checklist.len() {
-                    if Confirm::with_theme(&ColorfulTheme::default())
-                        .with_prompt("Warning: Not all DoD items were checked. Proceed by adding a 'TODO' list to the commit message? (Y/n)")
-                        .interact()?
-                    {
-                        let todo_footer = build_todo_footer(&config.checklist, &checked);
-                        commit_message.push_str(&todo_footer);
-                    } else {
-                        println!("Commit aborted.");
-                        return Ok(());
-                    }
+            let final_commit_message = if no_verify {
+                let mut msg = header;
+                if let Some(issue_ref) = &issue {
+                    msg = format!("{} {}", issue_ref, msg);
                 }
-                if config.issue_reference_required.unwrap_or(false) && issue.is_none() {
-                    println!("{}", "Issue reference is required for commits.".red());
-                    return Err(anyhow::anyhow!("Issue reference required"));
-                }
-            }
+                Some(msg)
+            } else {
+                handle_interactive_commit(&config, &header, &issue)?
+            };
 
-            println!("{}", format!("Commit message will be:\n---\n{}\n---", commit_message).blue());
-            // Stage changes first, before any other operations.
-            git::add_all()?;
-            git::pull_latest_with_rebase()?;
-            git::commit(&commit_message)?;
-            git::push()?;
-            println!("{}", "Successfully committed and pushed changes.".green());
+            if let Some(commit_message) = final_commit_message {
+                println!("{}", format!("Commit message will be:\n---\n{}\n---", commit_message).blue());
+                git::add_all()?;
+                git::pull_latest_with_rebase()?;
+                git::commit(&commit_message)?;
+                git::push()?;
+                println!("{}", "Successfully committed and pushed changes.".green());
+            }
         }
     }
     Ok(())
