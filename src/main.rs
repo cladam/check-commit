@@ -55,9 +55,6 @@ fn handle_interactive_commit(
     issue: &Option<String>,
 ) -> Result<Option<String>> {
     let mut commit_message = base_message.to_string();
-    if let Some(issue_ref) = issue {
-        commit_message = format!("{} {}", issue_ref, commit_message);
-    }
 
     let checked = run_checklist_interactive(&config.checklist)?;
     if checked.len() != config.checklist.len() {
@@ -76,6 +73,13 @@ fn handle_interactive_commit(
     if config.issue_reference_required.unwrap_or(false) && issue.is_none() {
         println!("{}", "Issue reference is required for commits.".red());
         return Err(anyhow::anyhow!("Aborted: Issue reference required."));
+    }
+
+    // Append the issue reference as a trailer/footer if required
+    if config.issue_reference_required.unwrap_or(false) {
+        if let Some(issue_ref) = issue {
+            commit_message.push_str(&format!("\n\nRefs: {}", issue_ref));
+        }
     }
 
     Ok(Some(commit_message))
