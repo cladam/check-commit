@@ -84,6 +84,7 @@ fn handle_interactive_commit(
 /// Main function that parses command line arguments and executes the appropriate git operations.
 fn main() -> anyhow::Result<()> {
     let cli = cli::Cli::parse();
+    let verbose = cli.verbose;
     let config = read_dod_config()?;
     if config.checklist.is_empty() {
         println!("{}", "No checklist items defined.".yellow());
@@ -92,7 +93,7 @@ fn main() -> anyhow::Result<()> {
     match cli.command {
         cli::Commands::Status => {
             println!("--- Checking Git status ---");
-            let status = git::status()?;
+            let status = git::status(verbose)?;
             println!("{}", format!("Git Status:\n{}", status).green());
         }
         cli::Commands::Commit { r#type, scope, message, no_verify, issue} => {
@@ -112,10 +113,10 @@ fn main() -> anyhow::Result<()> {
 
             if let Some(commit_message) = final_commit_message {
                 println!("{}", format!("Commit message will be:\n---\n{}\n---", commit_message).blue());
-                git::add_all()?;
-                git::pull_latest_with_rebase()?;
-                git::commit(&commit_message)?;
-                git::push()?;
+                git::add_all(verbose)?;
+                git::pull_latest_with_rebase(verbose)?;
+                git::commit(&commit_message, verbose)?;
+                git::push(verbose)?;
                 println!("{}", "Successfully committed and pushed changes.".green());
             }
         }

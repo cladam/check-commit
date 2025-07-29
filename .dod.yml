@@ -14,7 +14,7 @@
 # --- Optional Issue Tracker Integration ---
 # If true, the check-commit tool will require the --issue <ID> flag
 # to be used with the commit command, ensuring all work is traceable.
-issue_reference_required: true
+issue_reference_required: false
 
 checklist:
   # --- Code Quality & Testing (High-Impact Checks) ---

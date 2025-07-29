@@ -7,6 +7,8 @@ use clap::Parser;
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
+    #[arg(long)]
+    pub verbose: bool,
 }
 
 #[derive(clap::Subcommand, Debug)]
