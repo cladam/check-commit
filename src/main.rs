@@ -30,16 +30,19 @@ fn run_checklist_interactive(checklist: &[String]) -> anyhow::Result<Vec<usize>>
 }
 
 fn build_todo_footer(checklist: &[String], checked_indices: &[usize]) -> String {
-    if checked_indices.len() == checklist.len() {
-        return String::new();
+    //let checked_indices: Vec<usize> = checked_indices.iter().cloned().collect();
+    let unchecked_items: Vec<String> = checklist
+        .iter()
+        .enumerate()
+        .filter(|(i, _)| !checked_indices.contains(&i))
+        .map(|(_, item)| format!("- [ ] {}", item))
+        //.filter_map(|(i, item)| if !checked_indices.contains(&i) { Some(item.clone()) } else { None })
+        .collect();
+    if unchecked_items.is_empty() {
+        String::new()
+    } else {
+        format!("\n\nTODO:\n{}", unchecked_items.join("\n"))
     }
-    let mut footer = String::from("\nTODO:\n");
-    for (i, item) in checklist.iter().enumerate() {
-        if !checked_indices.contains(&i) {
-            footer.push_str(&format!("- [ ] {}\n", item));
-        }
-    }
-    footer
 }
 
 fn main() -> anyhow::Result<()> {
