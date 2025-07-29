@@ -39,7 +39,7 @@ pub(crate) enum Commands {
         #[arg(long, default_value_t = false)]
         no_verify: bool,
         /// Optional flag for an issue reference.
-        #[arg(long, default_value_t = false)]
-        issue: bool,
+        #[arg(long)]
+        issue: Option<String>,
     },
 }

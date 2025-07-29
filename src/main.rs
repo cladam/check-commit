@@ -60,6 +60,9 @@ fn main() -> anyhow::Result<()> {
             let scope_part = scope.map_or("".to_string(), |s| format!("({})", s));
             let header = format!("{}{}: {}", r#type, scope_part, message);
             let mut commit_message = format!("{}", header);
+            if let Some(issue_ref) = &issue {
+                commit_message = format!("{} {}", issue_ref, commit_message);
+            }
 
             if !no_verify {
                 let checked = run_checklist_interactive(&config.checklist)?;
@@ -75,7 +78,7 @@ fn main() -> anyhow::Result<()> {
                         return Ok(());
                     }
                 }
-                if config.issue_reference_required.unwrap_or(false) && !issue {
+                if config.issue_reference_required.unwrap_or(false) && issue.is_none() {
                     println!("{}", "Issue reference is required for commits.".red());
                     return Err(anyhow::anyhow!("Issue reference required"));
                 }
