@@ -75,7 +75,7 @@ fn handle_interactive_commit(
         return Err(anyhow::anyhow!("Aborted: Issue reference required."));
     }
 
-    // Append the issue reference as a trailer/footer if required
+    // Append the issue reference as a trailer/footer if passed
     if config.issue_reference_required.unwrap_or(false) {
         if let Some(issue_ref) = issue {
             commit_message.push_str(&format!("\n\nRefs: {}", issue_ref));
