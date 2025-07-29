@@ -94,7 +94,7 @@ fn main() -> anyhow::Result<()> {
         cli::Commands::Status => {
             println!("--- Checking Git status ---");
             let status = git::status(verbose)?;
-            println!("{}", format!("Git Status:\n{}", status).green());
+            println!("{}", format!("Git Status:\n{}", status).blue());
         }
         cli::Commands::Commit { r#type, scope, message, no_verify, issue} => {
             println!("--- Committing changes ---");
@@ -104,7 +104,7 @@ fn main() -> anyhow::Result<()> {
             let final_commit_message = if no_verify {
                 let mut msg = header;
                 if let Some(issue_ref) = &issue {
-                    msg = format!("{} {}", issue_ref, msg);
+                    msg.push_str(&format!("\n\nRefs: {}", issue_ref));
                 }
                 Some(msg)
             } else {

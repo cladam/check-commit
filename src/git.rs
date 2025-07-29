@@ -13,7 +13,7 @@ pub enum GitError {
 /// Runs a Git command with the specified subcommand and arguments.
 fn run_git_command(command: &str, args: &[&str], verbose: bool) -> Result<String> {
     if verbose {
-        println!("{} git {} {}", "[RUNNING] ".green(), command, args.join(" "));
+        println!("{} git {} {}", "[RUNNING] ".cyan(), command, args.join(" "));
     }
     let output = Command::new("git")
         .arg(command)
