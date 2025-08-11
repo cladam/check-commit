@@ -1,3 +1,6 @@
+# Archived and implemented in tbdflow
+
+
 # check-commit
 
 A TBD-friendly pre-commit tool that enforces your team's Definition of Done (DoD) using an interactive checklist.
@@ -50,4 +53,4 @@ Roadmap:
 * ~~Read and parse the `.dod.yml` configuration file.~~
 * ~~Implement the interactive checklist using a TUI library.~~
 * ~~Execute `git commit` upon successful confirmation.~~
-* Integrate this logic into the `tbdflow commit` command.
+* ~~Integrate this logic into the `tbdflow commit` command.~~
